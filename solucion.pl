@@ -1,228 +1,173 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% Parcial - Las Casas de Hogwarts
+% Parcial - Dustbusters
 % NOMBRE: Leonardo Olmedo - lgo1980
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 /*
-En Hogwarts, el colegio de magia y hechicería, hay 4 casas en las cuales los nuevos alumnos se distribuyen ni bien ingresan. 
-Cada año estas casas compiten entre ellas para consagrarse la ganadora de la copa.
+En épocas de crisis financiera, incluso los habitantes
+del mundo paranormal abandonan el plano físico
+en busca de empleo, dejando montones de hogares
+dados vuelta y con sustancias pegajosas en lugares
+exóticos. Sin fantasmas, y ninguna fuente de
+ingresos estable, los cazafantasmas (Peter, Egon,
+Ray y Winston) deciden cambiar de rumbo en una
+empresa de otro calibre, la tenebrosa limpieza a
+domicilio.
+Sabemos cuáles son las herramientas requeridas
+para realizar una tarea de limpieza. Además, para
+las aspiradoras se indica cuál es la potencia mínima
+requerida para la tarea en cuestión.
 */
+
+herramientasRequeridas(ordenarCuarto, [aspiradora(100), trapeador, plumero]).
+herramientasRequeridas(limpiarTecho, [escoba, pala]).
+herramientasRequeridas(cortarPasto, [bordedadora]).
+herramientasRequeridas(limpiarBanio, [sopapa, trapeador]).
+herramientasRequeridas(encerarPisos, [lustradpesora, cera, aspiradora(300)]).
+tarea(Tarea):-
+  herramientasRequeridas(Tarea,_).
 /*
-Parte 1 - Sombrero Seleccionador
-Para determinar en qué casa queda una persona cuando ingresa a Hogwarts, el Sombrero Seleccionador tiene en cuenta el carácter de la persona,
- lo que prefiere y en algunos casos su status de sangre.
-Tenemos que registrar en nuestra base de conocimientos qué características tienen los distintos magos que ingresaron a Hogwarts, 
-el status de sangre que tiene cada mago y en qué casa odiaría quedar. Actualmente sabemos que:
-• Harry es sangre mestiza, y se caracteriza por ser corajudo, amistoso, orgulloso e inteligente. Odiaría que el sombrero lo mande a Slytherin.
-• Draco es sangre pura, y se caracteriza por ser inteligente y orgulloso, pero no es corajudo ni amistoso. Odiaría que el sombrero lo mande a Hufflepuff.
-• Hermione es sangre impura, y se caracteriza por ser inteligente, orgullosa y responsable. No hay ninguna casa a la que odiaría ir.
-*/
-sangre(harry,mestiza).
-sangre(draco,pura).
-sangre(hermione,impura).
-sangre(ron,pura).
-sangre(ron1,pura).
-mago(Mago):-
-  sangre(Mago,_).
-
-caracteristicaMago(harry,corajudo).
-caracteristicaMago(harry,amistoso).
-caracteristicaMago(harry,orgulloso).
-caracteristicaMago(harry,inteligente).
-caracteristicaMago(draco,corajudo).
-caracteristicaMago(draco,amistoso).
-caracteristicaMago(hermione,responsable).
-caracteristicaMago(hermione,orgulloso).
-caracteristicaMago(hermione,inteligente).
-
-odiaIr(harry,slytherin).
-odiaIr(draco,hufflepuff).
-
+Se pide resolver los siguientes requerimientos aprovechando las ideas del paradigma lógico, y
+asegurando que los predicados principales sean completamente inversibles, a menos que se
+indique lo contrario:
+1. Agregar a la base de conocimientos la siguiente información:*/
+%a. Egon tiene una aspiradora de 200 de potencia.
+tiene(egon,aspiradora(200)).
+%b. Egon y Peter tienen un trapeador, Ray y Winston no.
+tiene(egon,trapeador).
+tiene(egon,plumero).
+tiene(peter,trapeador).
+%c. Sólo Winston tiene una varita de neutrones.
+tiene(winston,varitaDeNeutrones).
+%d. Nadie tiene una bordeadora.
 /*
-Además nos interesa saber cuáles son las características principales que el sombrero tiene en cuenta para elegir la casa más apropiada:
-• Para Gryffindor, lo más importante es tener coraje.
-• Para Slytherin, lo más importante es el orgullo y la inteligencia.
-• Para Ravenclaw, lo más importante es la inteligencia y la responsabilidad.
-• Para Hufflepuff, lo más importante es ser amistoso.
+2. Definir un predicado que determine si un integrante satisface la necesidad de una
+herramienta requerida. Esto será cierto si tiene dicha herramienta, teniendo en cuenta
+que si la herramienta requerida es una aspiradora, el integrante debe tener una con
+potencia igual o superior a la requerida.
+Nota: No se pretende que sea inversible respecto a la herramienta requerida.
 */
-casa(gryffindor).
-casa(slytherin).
-casa(ravenclaw).
-casa(hufflepuff).
-caracteristicaCasa(gryffindor,corajudo).
-caracteristicaCasa(slytherin,orgulloso).
-caracteristicaCasa(slytherin,inteligente).
-caracteristicaCasa(ravenclaw,inteligente).
-caracteristicaCasa(ravenclaw,responsable).
-caracteristicaCasa(hufflepuff,amistoso).
+integranteContieneHerramientaRedquerida(Herramienta, Integrante):-
+  poseeHerramienta(Herramienta, Integrante).
 
-/*
-Se pide:
-1. Saber si una casa permite entrar a un mago, lo cual se cumple para cualquier mago y cualquier casa excepto en el caso de Slytherin, 
-que no permite entrar a magos de sangre impura.
-*/
-permisoDeLaCasa(Casa,Mago):-
-  casa(Casa),
-  mago(Mago),
-  not((sangre(Mago,impura),Casa = slytherin)).
+poseeHerramienta(aspiradora(Potencia), Integrante):-
+  tiene(Integrante,aspiradora(PotenciaIntegrante)),
+  PotenciaIntegrante >= Potencia.
+poseeHerramienta(Herramienta, Integrante):-
+  tiene(Integrante,Herramienta).
 
 /*
-2. Saber si un mago tiene el carácter apropiado para una casa, lo cual se cumple para cualquier mago si sus características
-incluyen todo lo que se busca para los integrantes de esa casa, independientemente de si la casa le permite la entrada.
+  3. Queremos saber si una persona puede realizar una tarea, que dependerá de las
+herramientas que tenga. Sabemos que:
+- Quien tenga una varita de neutrones puede hacer cualquier tarea,
+independientemente de qué herramientas requiera dicha tarea.
+- Alternativamente alguien puede hacer una tarea si puede satisfacer la necesidad de
+todas las herramientas requeridas para dicha tarea.
 */
-caracterApropiado(Mago,Casa):-
-  casa(Casa),
-  mago(Mago),
-  forall(caracteristicaCasa(Casa,Caracteristica),caracteristicaMago(Mago,Caracteristica)).
-/*
-3. Determinar en qué casa podría quedar seleccionado un mago sabiendo que tiene que tener el carácter adecuado para la casa,
- la casa permite su entrada y además el mago no odiaría que lo manden a esa casa. Además Hermione puede quedar seleccionada en Gryffindor,
-  porque al parecer encontró una forma de hackear al sombrero.
-*/
-quedarSeleccionado(Casa,Mago):-
-  caracterApropiado(Mago,Casa),
-  permisoDeLaCasa(Casa,Mago),
-  not(odiaIr(Mago,Casa)).
-quedarSeleccionado(gryffindor,hermione).
+realizarTarea(Persona,Tarea):-
+  tarea(Tarea),
+  tiene(Persona,varitaDeNeutrones).
+realizarTarea(Persona,Tarea):-
+  tiene(Persona,_),
+  herramientasRequeridas(Tarea,Herramientas),
+  forall(member(Herramienta,Herramientas),integranteContieneHerramientaRedquerida(Herramienta,Persona)).
 
 /*
-4. Definir un predicado cadenaDeAmistades/1 que se cumple para una lista de magos si todos ellos se caracterizan por ser amistosos
- y cada uno podría estar en la misma casa que el siguiente. No hace falta que sea inversible, se consultará de forma individual.
+  4. Nos interesa saber de antemano cuanto se le debería cobrar a un cliente por un pedido
+(que son las tareas que pide). Para ellos disponemos de la siguiente información en la
+base de conocimientos:
+- tareaPedida/3: relaciona al cliente, con la tarea pedida y la cantidad de metros
+cuadrados sobre los cuales hay que realizar esa tarea.
+- precio/2: relaciona una tarea con el precio por metro cuadrado que se cobraría al
+cliente.
+Entonces lo que se le cobraría al cliente sería la suma del valor a cobrar por cada tarea,
+multiplicando el precio por los metros cuadrados de la tarea.
 */
-cadenaDeAmistades(Magos):-
-  serAmistosos(Magos),
-  quedarEnLaMismaCasa(Magos).
+%tareaPedida(,Tarea,CantidadMetros).
+%tareaPedida(tarea, cliente, metrosCuadrados).
+tareaPedida(ordenarCuarto, dana, 20).
+tareaPedida(cortarPasto, walter, 50).
+tareaPedida(limpiarTecho, walter, 70).
+tareaPedida(limpiarBanio, louis, 15).
 
-serAmistosos(Magos):-
-  forall(member(Mago,Magos),caracteristicaMago(Mago,amistoso)).
+%precio(tarea, precioPorMetroCuadrado).
+precio(ordenarCuarto, 13).
+precio(limpiarTecho, 20).
+precio(limpiarBanio, 55).
+precio(cortarPasto, 10).
+precio(encerarPisos, 7).
 
-quedarEnLaMismaCasa([]).
-quedarEnLaMismaCasa([_]).
-quedarEnLaMismaCasa([Mago1,Mago2|Magos]):-
-  quedarSeleccionado(Casa,Mago1),
-  quedarSeleccionado(Casa,Mago2),
-  quedarEnLaMismaCasa([Mago2|Magos]).
+presupuesto(Cliente,Presupuesto):-
+  cliente(Cliente),
+  findall(Precio,generarPrecio(Cliente,Precio),Precios),
+  sum_list(Precios, Presupuesto).
+  
+cliente(Cliente):-
+  tareaPedida(_,Cliente,_).
+
+generarPrecio(Cliente,PrecioTotal):-
+  tareaPedida(Tarea, Cliente, Precio),
+  precio(Tarea, MetrosCuadrados),
+  PrecioTotal is Precio * MetrosCuadrados.
 
 /*
-Parte 2 - La copa de las casas
-A lo largo del año los alumnos pueden ganar o perder puntos para su casa en base a las buenas y malas acciones realizadas,
- y cuando termina el año se anuncia el ganador de la copa. Sobre las acciones que impactan al puntaje actualmente tenemos la siguiente información:
-• Malas acciones: son andar de noche fuera de la cama (que resta 50 puntos) o ir a lugares prohibidos. La cantidad de puntos 
-que se resta por ir a un lugar prohibido se indicará para cada lugar. Ir a un lugar que no está prohibido no afecta al puntaje.
-• Buenas acciones: son reconocidas por los profesores y prefectos individualmente y el puntaje se indicará para cada acción premiada.
-Necesitamos registrar las distintas acciones que hicieron los alumnos de Hogwarts durante el año. Sabemos que:
+  5. Finalmente necesitamos saber quiénes aceptarían el pedido de un cliente. Un
+integrante acepta el pedido cuando puede realizar todas las tareas del pedido y
+además está dispuesto a aceptarlo.
+Sabemos que Ray sólo acepta pedidos que no incluyan limpiar techos, Winston sólo
+acepta pedidos que paguen más de $500, Egon está dispuesto a aceptar pedidos que
+no tengan tareas complejas y Peter está dispuesto a aceptar cualquier pedido.
+Decimos que una tarea es compleja si requiere más de dos herramientas. Además la
+limpieza de techos siempre es compleja.
 */
-%• Harry anduvo fuera de cama.
-accion(harry,mala(fueraDeLaCama,50)).
-%• Hermione fue al tercer piso y a la sección restringida de la biblioteca.
-accion(hermione,mala(biblioteca,10)).
-accion(hermione,mala(tercerPiso,75)).
-%• Harry fue al bosque y al tercer piso.
-accion(harry,mala(bosque,50)).
-accion(harry,mala(tercerPiso,75)).
-%• Draco fue a las mazmorras.
-%• A Ron le dieron 50 puntos por su buena acción de ganar una partida de ajedrez mágico.
-accion(ron,buena(ajedrezMagico,50)).
-%• A Hermione le dieron 50 puntos por usar su intelecto para salvar a sus amigos de una muerte horrible.
-accion(draco,buena(usarIntelecto,50)).
-%• A Harry le dieron 60 puntos por ganarle a Voldemort.
-accion(harry,buena(ganarleAVoldemort,60)).
-accion(hermione,respuesta(dondeSeEncuentraUnBezoar,20,snape)).
-accion(hermione,respuesta(comoHacerLevitarUnaPluma,25,flitwick)).
-/*
-También sabemos que los siguientes lugares están prohibidos:
-• El bosque, que resta 50 puntos.
-• La sección restringida de la biblioteca, que resta 10 puntos.
-• El tercer piso, que resta 75 puntos.
-*/
+tareaCompleja(limpiarTecho).
+tareaCompleja(Tarea):-
+  herramientasRequeridas(Tarea, Tareas),
+  length(Tareas,Cantidad),
+  Cantidad > 2.
 
-%También sabemos en qué casa quedó seleccionado efectivamente cada alumno mediante el predicado esDe/2 que relaciona a la persona con su casa, 
-%por ejemplo:
-esDe(hermione, gryffindor).
-esDe(ron, gryffindor).
-esDe(harry, gryffindor).
-esDe(draco, slytherin).
-esDe(luna, ravenclaw).
+aceptarPedido(Cliente,Integrante):-
+  tareaPedida(Tarea, Cliente, _),
+  realizarTarea(Integrante,Tarea),
+  verificarQuienAcepta(Cliente,Integrante).
+
+verificarQuienAcepta(_,peter).
+verificarQuienAcepta(Cliente,winston):-
+  presupuesto(Cliente,Presupuesto),
+  Presupuesto > 500.
+verificarQuienAcepta(Cliente,ray):-
+  tareaPedida(Tarea, Cliente, _),
+  Tarea \= limpiarTecho.
+verificarQuienAcepta(Cliente,egon):-
+  tareaPedida(Tarea, Cliente, _),
+  not(tareaCompleja(Tarea)).
 
 /*
-Se pide incorporar a la base de conocimiento la información sobre las acciones realizadas y agregar la siguiente lógica a nuestro programa:
-1.
-1. Saber si un mago es buen alumno, que se cumple si hizo alguna acción y ninguna de las cosas que hizo se considera una mala acción (que son aquellas que provocan un puntaje negativo).
+  6. Necesitamos agregar la posibilidad de tener herramientas reemplazables, que incluyan
+2 herramientas de las que pueden tener los integrantes como alternativas, para que
+puedan usarse como un requerimiento para poder llevar a cabo una tarea.
+a. Mostrar cómo modelarías este nuevo tipo de información modificando el
+hecho de herramientasRequeridas/2 para que ordenar un cuarto pueda
+realizarse tanto con una aspiradora de 100 de potencia como con una escoba,
+además del trapeador y el plumero que ya eran necesarios.
+b. Realizar los cambios/agregados necesarios a los predicados definidos en los
+puntos anteriores para que se soporten estos nuevos requerimientos de
+herramientas para poder llevar a cabo una tarea, teniendo en cuenta que para
+las herramientas reemplazables alcanza con que el integrante satisfaga la
+necesidad de alguna de las herramientas indicadas para cumplir dicho
+requerimiento.
+c. Explicar a qué se debe que esto sea difícil o fácil de incorporar.
 */
-esBuenAlumno(Mago):-
-  mago(Mago),
-  accion(Mago,buena(_,_)),
-  not(accion(Mago,mala(_,_))).
-/*
-2. Saber si una acción es recurrente, que se cumple si más de un mago hizo esa misma acción.
-*/
-accionRecurrente(Accion):-
-  accion(Accion),
-  findall(Accion,buscarAccion(Accion),Acciones),
-  length(Acciones, SumaAcciones),
-  SumaAcciones > 1.
-
-accion(Accion):-
-  accion(_,Accion).
-
-buscarAccion(Accion):-
-  mago(Mago),
-  accion(Mago,Accion).
-
-%2. Saber cuál es el puntaje total de una casa, que es la suma de los puntos obtenidos por sus miembros.
-puntajeTotalCasa(Casa,PuntajeTotal):-
-  casaCompetidora(Casa),
-  findall(Puntos,obtenerPuntosDeLosMagosDeLaCasa(Casa,Puntos),PuntosTotales),
-  sum_list(PuntosTotales,PuntajeTotal).
-
-casaCompetidora(Casa):-
-  esDe(_,Casa).
-
-obtenerPuntosDeLosMagosDeLaCasa(Casa,Puntos):-
-  esDe(Mago,Casa),
-  accion(Mago,Accion),
-  generarPuntos(Accion,Puntos).
-
-generarPuntos(mala(_,PuntosMago),PuntosFinal):-
-  PuntosFinal is PuntosMago * (-1).
-generarPuntos(buena(_,PuntosMago),PuntosMago).
-generarPuntos(respuesta(_,PuntosPregunta,snape),PuntosMago):-
-  PuntosMago is PuntosPregunta / 2.
-generarPuntos(respuesta(_,PuntosPregunta,Profesor),PuntosPregunta):-
-  Profesor \= snape.
-
-%3. Saber cuál es la casa ganadora de la copa, que se verifica para aquella casa que haya obtenido una cantidad mayor de puntos que todas las otras.
-ganadoraDeLaCopa(Casa):-
-  puntajeTotalCasa(Casa,PuntajeMayor),
-  forall((puntajeTotalCasa(OtraCasa,PuntajeMenor),Casa \= OtraCasa),PuntajeMenor < PuntajeMayor).
-/*
-4. Queremos agregar la posibilidad de ganar puntos por responder preguntas en clase. La información que nos interesa de las respuestas en clase son:
- cuál fue la pregunta, cuál es la dificultad de la pregunta y qué profesor la hizo.
-
-Por ejemplo, sabemos que Hermione respondió a la pregunta de dónde se encuentra un Bezoar, de dificultad 20, realizada por el profesor Snape, 
-y cómo hacer levitar una pluma, de dificultad 25, realizada por el profesor Flitwick. 
-
-Modificar lo que sea necesario para que este agregado funcione con lo desarrollado hasta ahora, teniendo en cuenta que los puntos que se otorgan 
-equivalen a la dificultad de la pregunta, a menos que la haya hecho Snape, que da la mitad de puntos en relación a la dificultad de la pregunta.
-*/
-
 
 :- begin_tests(utneanos).
-  test(mago_que_se_le_permite_entrar_a_una_casa,set(Mago=[harry,draco,ron,ron1])):-
-    permisoDeLaCasa(slytherin,Mago).
-  test(mago_que_puede_entrar_a_una_casa_por_sus_caracteristicas,set(Mago=[harry,hermione])):-
-    caracterApropiado(Mago,slytherin).
-  test(mago_que_puede_entrar_a_una_casa_determinada_dependiendo_de_todas_las_condiciones_necesarias,set(Casa=[gryffindor,hufflepuff])):-
-    quedarSeleccionado(Casa,harry).
-  test(magos_quePueden_estar_en_una_lista_de_amistades,nondet):-
-    cadenaDeAmistades([harry,draco]).
-  test(si_un_mago_determinado_es_buen_alumno,set(Mago=[ron,draco])):-
-    esBuenAlumno(Mago).
-  test(saber_que_una_accion_es_recurrente,set(Accion=[mala(tercerPiso,75)])):-
-    distinct(accionRecurrente(Accion)).
-  test(saber_el_puntaje_total_de_una_casa_determinada,set(PuntajeTotal=[-115])):-
-    distinct(puntajeTotalCasa(gryffindor,PuntajeTotal)).
-  test(casa_ganadora_de_la_copa,set(Casa=[slytherin])):-
-    ganadoraDeLaCopa(Casa).
-
+  test(personas_que_le_gustan_el_vacio, set(Integrante=[egon,peter])):-
+    integranteContieneHerramientaRedquerida(trapeador, Integrante).
+  test(quien_tiene_una_varita_de_neutrones_puede_hacer_cualquier_tarea, set(Tarea=[ordenarCuarto,limpiarTecho,cortarPasto,limpiarBanio,encerarPisos])):-
+    realizarTarea(winston, Tarea).
+  test(persona_que_puede_realizar_una_tarea_si_cumple_con_todos_los_requerimientos, set(Tarea=[ordenarCuarto])):-
+   realizarTarea(egon, Tarea).
+  test(cobrarle_a_un_cliente_un_pedido_determinado, set(Presupuesto=[1900])):-
+    presupuesto(walter,Presupuesto).
+  test(integrante_determinado_acepta_un_pedido_determinado, set(Integrante=[winston])):-
+    aceptarPedido(walter,Integrante).
 :- end_tests(utneanos).
